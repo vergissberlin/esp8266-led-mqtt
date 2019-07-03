@@ -15,6 +15,10 @@
   Created 11th of July 2019
   By André Lademann <vergissberlin@gmail.com>
   https://github.com/vergissberlin/esp8266-mqtt-led
+
+  @inspiredby
+  https://www.studiopieters.nl/homebridge-mqtt-neopixel/
+  https://github.com/TheDevMinerTV/ConcourseCI-MQTT-WS2812B
   
   @example
   {
