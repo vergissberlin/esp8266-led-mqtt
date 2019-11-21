@@ -50,7 +50,6 @@
   - in progress (yellow blinking)
   - paused (blue)
 
-  docker run eclipse-mosquitto mosquitto_pub -t '/pipelines/10729810' -h 'mqtt.andrelademann.de' -m '{"method": "color","position": 0,"color": {"r": 150,"b": 255,"g": 75}}' -r -u netresearch -P TGjtRWmfHDhAY6WyEZhFjaq9
 */
 
 // Libraries
@@ -91,10 +90,6 @@ void setup() {
   setupOta();
   setupMqtt(deviceId);
   setupLed();
-
-  //doc["data"] = "dirk";
-  //char payload[512];
-  //serializeJson(doc, payload);
 }
 
 void loop() {

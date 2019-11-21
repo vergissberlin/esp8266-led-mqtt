@@ -21,7 +21,8 @@ WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 void setupLed() {
   ws2812fx.init();
   ws2812fx.setBrightness(255);
-  ws2812fx.setSegment(0, 0, 0, FX_MODE_STATIC, BLUE, 1500, false);
+  // set a first segment to avoid lightning all LEDs
+  ws2812fx.setSegment(0, 0, 0, FX_MODE_STATIC, (uint32_t)0x000000, 0, false);
   ws2812fx.start();
 }
 
