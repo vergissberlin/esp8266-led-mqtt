@@ -23,7 +23,8 @@ void setupWifi(const String deviceId) {
   Serial.println(F("\n▶ WiFi"));
   Serial.print(F("Connecting to \""));
   Serial.print(wifiSsid);
-  Serial.print(F("\"\t"));
+  Serial.println(F("\""));
+  Serial.print("\t\t");
 
   // WiFi.mode(WIFI_STA);
   WiFi.hostname(deviceId);
@@ -35,7 +36,7 @@ void setupWifi(const String deviceId) {
     connectInterationMaximum++;
     status.blink();
     if (connectInteration == 12) {
-      Serial.print("☉\n\t\t\t");
+      Serial.print("☉\n\t\t");
       connectInteration = 0;
     } else {
       Serial.print(F("☉"));

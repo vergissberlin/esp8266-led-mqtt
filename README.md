@@ -3,12 +3,17 @@ ESPO8266 LED MQTT
 
 ## Dependencies
 
-- ArduinoOTA
+### Install them manually
+
 - ArduinoJson
-- Adafruit_NeoPixel
-- TimedBlink https://github.com/lpasqualis/TimedBlink
+- ArduinoOTA
+- Adafruit NeoPixel
+- TimedBlink
 - PubSubClient
-- ESP8266mDNS
-- ESP8266WiFi
-- WiFiClient
-- WiFiUdp
+- WifiManager
+
+## Use PlatformIO
+
+```bash
+pio lib install
+```

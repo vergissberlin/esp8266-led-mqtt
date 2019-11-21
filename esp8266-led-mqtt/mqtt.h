@@ -17,52 +17,75 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// #include <ArduinoJson.h>
-
 char mqttFeedWithId[200];
 
-void setupMqtt(const uint32_t deviceId) {
-  Serial.println(F("\n▶ MQTT"));
-  char deviceIdChar[8];
-  sprintf(deviceIdChar,"%lu", deviceId);
 
-  // Connection
-  client.setServer(mqttServer, mqttPort);
-  client.connect(deviceIdChar, mqttUsername, mqttPassword, mqttWillTopic, mqttQos, mqttRetain, deviceIdChar);
+void callback(char* topic, byte* payload, unsigned int length) {
+  Serial.println("Message arrived:");
+  Serial.print("\tjson string:\t");
+  for (int i = 0; i < length; i++) {
+    Serial.print((char)payload[i]);
+  }
+  Serial.println("");
+
+  // JSON parser
+  deserializeJson(doc, payload, length);
+  JsonObject obj = doc.as<JsonObject>();
+
+}
+
+
+void connect() {
+  Serial.println(F("\n▶ MQTT"));
+
+  // Device id
+  char deviceIdChar[8];
+  sprintf(deviceIdChar, "%lu", deviceId);
 
   // Feeds generation
   snprintf(mqttFeedWithId, sizeof(mqttFeedWithId), mqttFeed, deviceIdChar);
-  
-  if(client.connected()) {
-    Serial.print("MQTT connected:\t");
-    Serial.println(client.state());
-  } else {
-    Serial.println("MQTT not connected");
+
+  // Connecting
+  Serial.print(F("Connecting to \""));
+  Serial.print(mqttServer);
+  Serial.print(F("\"\t"));
+  while (!client.connected()) {
+    if (client.connect(deviceIdChar, mqttUsername, mqttPassword, mqttWillTopic, mqttQos, mqttRetain, deviceIdChar)) {
+      Serial.print("\nStatus:\t\tMQTT connected. State ");
+      Serial.println(client.state());
+      Serial.print("Feed:\t\t");
+      Serial.println(mqttFeedWithId);
+      client.subscribe(mqttFeedWithId);
+    } else {
+      Serial.print(F("☉"));
+      delay(1000);
+    }
+  }
+}
+
+
+void setupMqtt(const uint32_t deviceId) {
+  // Connection
+  client.setServer(mqttServer, mqttPort);
+  client.setCallback(callback);
+}
+
+void loopMqtt() {
+  if (!client.connected()) {
+    connect();
   }
   client.loop();
 }
 
-void loopMqtt() {
-}
 
 /**
- * @see https://arduinojson.org/v6/faq/how-to-use-arduinojson-with-pubsubclient/
- */
+   @see https://arduinojson.org/v6/faq/how-to-use-arduinojson-with-pubsubclient/
+*/
 void mqttPublish(char* value) {
   if (! client.publish(mqttFeedWithId, value)) {
-    status.blink(1000,50);
+    status.blink(1000, 50);
   } else {
     Serial.println("Data:\t\t" + String(value));
     status.blinkOff();
   }
-}
-
-int replaceChar(char *str, char orig, char rep) {
-    char *ix = str;
-    int n = 0;
-    while((ix = strchr(ix, orig)) != NULL) {
-        *ix++ = rep;
-        n++;
-    }
-    return n;
 }

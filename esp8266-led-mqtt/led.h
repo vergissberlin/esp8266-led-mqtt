@@ -8,34 +8,63 @@
   By André Lademann <vergissberlin@gmail.com>
 
   https://github.com/vergissberlin/esp8266-mqtt-led
-  https://learn.adafruit.com/adafruit-neopixel-uberguide/arduino-library-use
+  https://github.com/kitesurfer1404/WS2812FX
 */
 
-#include <Adafruit_NeoPixel.h>
+#include <WS2812FX.h>
 
-#define PIN D2 // The pin where you connect the neopixel dataline
-#define NUMPIXELS 16 // How many NeoPixels are attached
+#define LED_PIN    4  // digital pin used to drive the LED strip
+#define LED_COUNT 15  // number of LEDs on the strip
 
-// When setting up the NeoPixel library, we tell it how many pixels,
-// and which pin to use to send signals. Note that for older NeoPixel
-// strips you might need to change the third parameter -- see the
-// strandtest example for more information on possible values.
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+WS2812FX ws2812fx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 void setupLed() {
-  pixels.begin(); // INITIALIZE NeoPixel strip object (REQUIRED)
+  ws2812fx.init();
+  ws2812fx.setBrightness(255);
+  ws2812fx.setSegment(0, 0, 0, FX_MODE_STATIC, BLUE, 1500, false);
+  ws2812fx.start();
+}
+
+void readConfig() {
+  // JSON parser
+  JsonObject obj = doc.as<JsonObject>();
+
+  // IF (doc object is not empty)
+  if (doc.isNull() == false) {
+
+    String method = obj["method"];
+    Serial.print("\tmethod:\t\t");
+    Serial.println(method);
+
+    uint16_t position = obj["position"];
+    Serial.print("\tposition:\t\t");
+    Serial.println(position);
+
+
+    // Set colours
+    uint8_t r = obj["color"]["r"];
+    uint8_t g = obj["color"]["g"];
+    uint8_t b = obj["color"]["b"];
+    Serial.print("\trgb:\t\t");
+    Serial.print(r);
+    Serial.print(", ");
+    Serial.print(g);
+    Serial.print(", ");
+    Serial.println(b);
+
+    // Cast rgb in hex in uint32_t
+    uint32_t colour = ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
+    //uint32_t colors[] = {RED, BLUE};
+
+    // Set pixel effect
+    ws2812fx.setSegment(position, position, position, FX_MODE_STATIC, colour, 1500, false);
+
+    // Clear the document
+    doc.clear();
+  }
 }
 
 void loopLed() {
-  pixels.clear(); // Set all pixel colors to 'off'
-
-  // The first NeoPixel in a strand is #0, second is 1, all the way up
-  // to the count of pixels minus one.
-  for(int i=0; i<NUMPIXELS; i++) {
-    // pixels.Color() takes RGB values, from 0,0,0 up to 255,255,255
-    // Here we're using a moderately bright green color:
-    pixels.setPixelColor(i, pixels.Color(0, 150, 0));
-    pixels.setBrightness(64);
-    pixels.show();   // Send the updated pixel colors to the hardware.
-  }
+  ws2812fx.service();
+  readConfig();
 }

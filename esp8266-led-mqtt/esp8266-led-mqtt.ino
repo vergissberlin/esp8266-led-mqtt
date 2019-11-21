@@ -49,13 +49,18 @@
   - failed (red)
   - in progress (yellow blinking)
   - paused (blue)
+
+  docker run eclipse-mosquitto mosquitto_pub -t '/pipelines/10729810' -h 'mqtt.andrelademann.de' -m '{"method": "color","position": 0,"color": {"r": 150,"b": 255,"g": 75}}' -r -u netresearch -P TGjtRWmfHDhAY6WyEZhFjaq9
 */
 
 // Libraries
-//#include <ArduinoJson.h>
+#include <ArduinoJson.h>
 
 // Load configuration
 #include "config.h"
+
+// Data storage
+StaticJsonDocument<256> doc;
 
 // Include libraries
 #include "blink.h"
@@ -65,11 +70,8 @@
 #include "led.h"
 #include "ota.h"
 
-// Data storage
-//StaticJsonDocument<512> doc
-
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   delay(500);
   Serial.println(F("\n      ✰✰✰  Pipeline monitor booting ✰✰✰      "));
   Serial.print("Device id: ");
@@ -77,11 +79,12 @@ void setup() {
   Serial.println("\n\
        _            _ _                                    _ _\n\
  _ __ (_)_ __   ___| (_)_ __   ___   _ __ ___   ___  _ __ (_) |_ ___  _ __\n\
-| '_ \| | '_ \ / _ \ | | '_ \ / _ \ | '_ ` _ \ / _ \| '_ \| | __/ _ \| '__|\n\
+| '_ \\| | '_ \\ / _ \\ | | '_ \\ / _ \\ | '_ ` _ \\ / _ \\| '_ \\| | __/ _ \\| '__|\n\
 | |_) | | |_) |  __/ | | | | |  __/ | | | | | | (_) | | | | | || (_) | |\n\
-| .__/|_| .__/ \___|_|_|_| |_|\___| |_| |_| |_|\___/|_| |_|_|\__\___/|_|\n\
+| .__/|_| .__/ \\___|_|_|_| |_|\\___| |_| |_| |_|\\___/|_| |_|_|\\__\\___/|_|\n\
 |_|     |_|\n\
   ");
+
   
   setupPins();
   setupWifi(String(deviceId));
